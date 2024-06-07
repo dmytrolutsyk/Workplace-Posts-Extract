@@ -11,7 +11,7 @@ patternImage = r'/([^/]+\.[a-zA-Z0-9]+)\?'
 patternPdf = r'/([^/]+\.pdf)'
 
 # Chemin où les fichiers seront téléchargés (modifiez selon vos besoins)
-origin_download_path = 'PDF_Download_workplace_group_media'
+origin_download_path = 'WorkplaceGroupPosts'
 if not os.path.exists(origin_download_path):
     os.makedirs(origin_download_path)
 
