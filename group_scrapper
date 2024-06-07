@@ -1,0 +1,39 @@
+import requests
+
+# Remplacez par votre token d'accès
+access_token = 'workplace-access-token'
+
+# URL de l'endpoint pour récupérer les groupes
+url = 'https://graph.facebook.com/v12.0/community/groups'
+
+# Paramètres de la requête
+params = {
+    'access_token': access_token,
+    'limit': 100,  # Limite le nombre de groupes par requête
+    'fields': 'id,name,privacy'
+}
+
+def get_all_groups(url, params):
+    groups = []
+    while url:
+        response = requests.get(url, params=params)
+        data = response.json()
+        if 'data' in data:
+            groups.extend(data['data'])
+            url = data.get('paging', {}).get('next')  # URL pour la page suivante
+        else:
+            url = None
+            print("Erreur ou fin des résultats:", data)
+    return groups
+
+# Récupérer tous les groupes
+all_groups = get_all_groups(url, params)
+
+# Afficher les groupes récupérés
+for group in all_groups:
+    print(f"ID: {group['id']}, Name: {group['name']}, Privacy: {group['privacy']}")
+
+# Sauvegarder les groupes dans un fichier texte
+with open('groups.txt', 'w', encoding='utf-8') as file:
+    for group in all_groups:
+        file.write(f"ID: {group['id']}, Name: {group['name']}, Privacy: {group['privacy']}\n")
