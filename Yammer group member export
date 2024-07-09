@@ -1,0 +1,89 @@
+import requests
+import pandas as pd
+
+# Remplace par ton jeton d'accès
+ACCESS_TOKEN = 'yammer-access-token'
+
+# Remplace par l'ID de ton groupe
+GROUP_ID = 'community_id'
+
+# URL de l'API pour récupérer les membres du groupe
+url = f'https://www.yammer.com/api/v1/groups/{GROUP_ID}/members.json'
+
+# En-têtes de la requête avec le jeton d'accès pour l'authentification
+headers = {
+    'Authorization': f'Bearer {ACCESS_TOKEN}'
+}
+
+
+def get_group_members():
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Erreur {response.status_code}: {response.text}")
+        return None
+
+def get_page_group_members():
+    members = []
+    response = requests.get(url, headers=headers, params={'page': 20})
+    print(response)
+    if response.status_code != 200:
+        print(f"Erreur {response.status_code}: {response.text}")
+    data = response.json()
+    print(data)
+    return members
+
+def get_all_group_members():
+    members = []
+    page = 1
+
+    while True:
+        response = requests.get(url, headers=headers, params={'page': page})
+        print(response)
+        if response.status_code != 200:
+            print(f"Erreur {response.status_code}: {response.text}")
+            break
+
+        data = response.json()
+        data = data['users']
+        print("+++++++++++++++++++++")
+        print(page)
+        print(data)
+        print("taille de la data", len(data))
+        if not data or len(data) == 0:
+            break
+
+        members.extend(data)
+        page += 1
+        print("taille de la liste", len(members))
+        # Vérifie si nous avons récupéré tous les membres
+        if len(data) < 50:
+            break
+
+    return members
+
+
+#data = get_group_members()
+
+members = get_all_group_members()
+print("==========================================")
+print(members)
+#print(members)
+#print(data['total_members'])
+#members = data['users']
+
+data = []
+for member in members:
+    print(member['full_name'], member['email'])
+    member_data = {
+        'FullName': member['full_name'],
+        'Email': member.get('email', 'N/A'),
+        'Id': member['id']
+    }
+    data.append(member_data)
+    df = pd.DataFrame(data)
+
+    # Écrire le DataFrame dans un fichier Excel
+    df.to_excel('meogroup_members.xlsx', index=False)
